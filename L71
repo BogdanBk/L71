@@ -1,0 +1,81 @@
+using System;
+
+public class Calculator<T>
+{
+    // Делегати для арифметичних операцій
+    public delegate T AddDelegate(T a, T b);
+    public delegate T SubtractDelegate(T a, T b);
+    public delegate T MultiplyDelegate(T a, T b);
+    public delegate T DivideDelegate(T a, T b);
+
+    // Поля для зберігання делегатів
+    public AddDelegate Add { get; set; }
+    public SubtractDelegate Subtract { get; set; }
+    public MultiplyDelegate Multiply { get; set; }
+    public DivideDelegate Divide { get; set; }
+
+    // Конструктор, в якому ініціалізуються делегати
+    public Calculator()
+    {
+        Add = (a, b) => Operator<T>.Add(a, b);
+        Subtract = (a, b) => Operator<T>.Subtract(a, b);
+        Multiply = (a, b) => Operator<T>.Multiply(a, b);
+        Divide = (a, b) => Operator<T>.Divide(a, b);
+    }
+
+    // Метод для виконання арифметичної операції
+    public T PerformOperation(T a, T b, AddDelegate operation)
+    {
+        return operation(a, b);
+    }
+
+    // Додаткові методи для виконання інших операцій, якщо потрібно
+}
+
+// Клас для операторів, необхідних для роботи з різними числовими типами
+public static class Operator<T>
+{
+    public static T Add(T a, T b)
+    {
+        return (dynamic)a + b;
+    }
+
+    public static T Subtract(T a, T b)
+    {
+        return (dynamic)a - b;
+    }
+
+    public static T Multiply(T a, T b)
+    {
+        return (dynamic)a * b;
+    }
+
+    public static T Divide(T a, T b)
+    {
+        if (b.Equals(default(T)))
+        {
+            throw new ArgumentException("Division by zero is not allowed.");
+        }
+
+        return (dynamic)a / b;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        // Використання класу Calculator для різних типів даних
+        Calculator<int> intCalculator = new Calculator<int>();
+        Console.WriteLine($"Add: {intCalculator.PerformOperation(5, 3, intCalculator.Add)}");
+        Console.WriteLine($"Subtract: {intCalculator.PerformOperation(5, 3, intCalculator.Subtract)}");
+        Console.WriteLine($"Multiply: {intCalculator.PerformOperation(5, 3, intCalculator.Multiply)}");
+        Console.WriteLine($"Divide: {intCalculator.PerformOperation(5, 3, intCalculator.Divide)}");
+
+        Calculator<double> doubleCalculator = new Calculator<double>();
+        Console.WriteLine($"Add: {doubleCalculator.PerformOperation(5.5, 3.3, doubleCalculator.Add)}");
+        Console.WriteLine($"Subtract: {doubleCalculator.PerformOperation(5.5, 3.3, doubleCalculator.Subtract)}");
+        Console.WriteLine($"Multiply: {doubleCalculator.PerformOperation(5.5, 3.3, doubleCalculator.Multiply)}");
+        Console.WriteLine($"Divide: {doubleCalculator.PerformOperation(5.5, 3.3, doubleCalculator.Divide)}");
+    }
+}
